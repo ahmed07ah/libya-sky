@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a1633">
+<title>Libya Sky | طقس ومواقيت الصلاة في ليبيا</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap">
+<style>
+:root{--fg:#0b2545;--card:rgba(255,255,255,.62);--bd:rgba(255,255,255,.75);--acc:#0891b2;--tile:rgba(255,255,255,.4);--g:linear-gradient(160deg,#2b8cff,#8fd0ff);--sh:0 8px 30px rgba(10,40,90,.2)}
+[data-theme=dark]{--fg:#e8f4ff;--card:rgba(255,255,255,.09);--bd:rgba(255,255,255,.18);--acc:#22d3ee;--tile:rgba(255,255,255,.08)}
+body[data-sky=clear]{--g:linear-gradient(160deg,#2b8cff,#8fd0ff)}
+body[data-sky=cloud]{--g:linear-gradient(160deg,#6f8fb0,#b7c9db)}
+body[data-sky=rain]{--g:linear-gradient(160deg,#4a5f78,#8296ab)}
+body[data-sky=storm]{--g:linear-gradient(160deg,#2f3b52,#58657d)}
+body[data-sky=snow]{--g:linear-gradient(160deg,#8aa4bf,#dbe7f2)}
+body[data-sky=fog]{--g:linear-gradient(160deg,#8d9aa6,#c9d1d8)}
+body[data-sky=night]{--g:linear-gradient(160deg,#0a1633,#1d3a6e)}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100vh;font-family:Cairo,Tajawal,system-ui,"Segoe UI",Tahoma,sans-serif;color:var(--fg);background:var(--g) fixed;overflow-x:hidden;transition:color .4s}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;background:transparent;transition:background .4s}
+[data-theme=dark] body::before{background:rgba(3,10,30,.5)}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.8}
+body[data-sky=clear]::after,body[data-sky=cloud]::after,body[data-sky=fog]::after{background:radial-gradient(ellipse 220px 70px at 20% 25%,rgba(255,255,255,.35),transparent 70%),radial-gradient(ellipse 300px 90px at 75% 15%,rgba(255,255,255,.3),transparent 70%),radial-gradient(ellipse 260px 80px at 50% 60%,rgba(255,255,255,.2),transparent 70%);background-size:200% 100%;animation:drift 60s linear infinite alternate}
+body[data-sky=rain]::after,body[data-sky=storm]::after{background:repeating-linear-gradient(105deg,transparent 0 14px,rgba(255,255,255,.28) 14px 15px);background-size:90px 90px;animation:fall .5s linear infinite}
+body[data-sky=night]::after{background:radial-gradient(2px 2px at 20px 30px,#fff,transparent),radial-gradient(1.5px 1.5px at 90px 80px,#cfe8ff,transparent),radial-gradient(2px 2px at 150px 20px,#fff,transparent),radial-gradient(1px 1px at 60px 140px,#fff,transparent);background-size:200px 180px;animation:tw 4s ease-in-out infinite alternate}
+@keyframes drift{to{background-position:100% 0}}
+@keyframes fall{to{background-position:-40px 90px}}
+@keyframes tw{from{opacity:.4}to{opacity:.95}}
+.wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:12px;padding-bottom:calc(12px + env(safe-area-inset-bottom));display:grid;gap:12px}
+.card{background:var(--card);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--bd);border-radius:22px;padding:16px;box-shadow:var(--sh);min-width:0}
+h2{margin:0 0 10px;font-size:1.05rem}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.sp{flex:1}
+.logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:1.35rem}
+.logo small{font-weight:400;opacity:.75;font-size:.75rem;display:block;line-height:1}
+.btn,select,input{font:inherit;color:inherit;background:var(--tile);border:1px solid var(--bd);border-radius:14px;min-height:44px;padding:0 12px}
+.btn{cursor:pointer;min-width:44px;transition:transform .15s,background .2s}
+.btn:hover{background:rgba(34,211,238,.25)}.btn:active{transform:scale(.95)}
+.btn:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+select option{color:#0b2545}
+.search{position:relative;flex:1 1 180px}
+.search input{width:100%}
+.res{position:absolute;inset-inline:0;top:48px;z-index:20;background:var(--card);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--bd);border-radius:14px;overflow:hidden}
+[data-theme=dark] .res{background:#0e2247}
+[data-theme=light] .res{background:#fff}
+.res button{display:block;width:100%;text-align:start;padding:10px 14px;background:none;border:0;color:inherit;font:inherit;cursor:pointer;min-height:44px}
+.res button:hover{background:rgba(34,211,238,.2)}
+.ltr{direction:ltr;unicode-bidi:isolate;display:inline-block}
+/* 12-hour times contain Arabic AM/PM words, so they keep the page direction (RTL) but stay isolated from surrounding text */
+.tm{unicode-bidi:isolate}
+.per{font-size:.68em;font-weight:600;opacity:.9;margin-inline-start:3px}
+.two{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:820px){.two{grid-template-columns:1.2fr 1fr}}
+.hero{display:grid;gap:10px}
+.big{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.big .ic{font-size:4.2rem;line-height:1;filter:drop-shadow(0 6px 10px rgba(0,0,0,.25));animation:fl 5s ease-in-out infinite}
+@keyframes fl{50%{transform:translateY(-6px)}}
+.temp{font-size:4rem;font-weight:800;line-height:1}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:8px}
+.tile{background:var(--tile);border-radius:14px;padding:10px;font-size:.9rem}
+.tile b{display:block;font-size:1.05rem}
+.scroll{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch}
+.hr{flex:0 0 86px;text-align:center;background:var(--tile);border-radius:14px;padding:8px 4px;font-size:.8rem}
+.hr .e{font-size:1.5rem}
+.day{display:grid;grid-template-columns:1.7fr 2rem 1fr 1fr;gap:6px;align-items:center;padding:8px 4px;border-bottom:1px solid var(--bd);font-size:.9rem}
+.day:last-child{border:0}
+.day small{display:block;opacity:.8;font-size:.72rem;line-height:1.4}
+.prayer{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cpath d='M30 4l6 14 14-6-6 14 14 6-14 6 6 14-14-6-6 14-6-14-14 6 6-14-14-6 14-6-6-14 14 6z' fill='none' stroke='%23fff' stroke-opacity='.14'/%3E%3C/svg%3E")}
+.cd{text-align:center;padding:8px 0}
+.cd .t{font-size:2.6rem;font-weight:800;letter-spacing:2px;color:var(--acc)}
+.pcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:8px;margin-top:8px}
+.pc{text-align:center;background:var(--tile);border-radius:16px;padding:12px 4px;border:1px solid transparent;transition:all .3s}
+.pc b{display:block;font-size:1.2rem}
+.pc small{display:block;min-height:1.2em;color:var(--acc);font-weight:600}
+.pc.next{border-color:var(--acc);background:rgba(34,211,238,.22);box-shadow:0 0 22px rgba(34,211,238,.45);transform:scale(1.05)}
+.err{background:rgba(220,38,38,.25);border:1px solid rgba(248,113,113,.7);border-radius:14px;padding:10px 12px;margin-bottom:8px}
+.alert{background:rgba(245,158,11,.3);border:1px solid #f59e0b;border-radius:14px;padding:10px 12px;font-weight:600}
+.cmp{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px}
+.cmp button{font:inherit;color:inherit;border:1px solid var(--bd);border-radius:14px;padding:8px 4px;cursor:pointer;min-height:64px}
+.cmp button.cur{outline:2px solid var(--acc)}
+.chip{padding:0 12px}
+ul{margin:0;padding-inline-start:20px}li{margin:4px 0}
+.spin{width:18px;height:18px;border:3px solid var(--bd);border-top-color:var(--acc);border-radius:50%;animation:sp .8s linear infinite;display:inline-block;vertical-align:middle}
+@keyframes sp{to{transform:rotate(360deg)}}
+[hidden]{display:none!important}
+.set{display:grid;gap:8px}
+.set label{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}
+.set select{max-width:100%}
+.set input[type=number]{width:90px}
+@media(max-width:480px){.temp{font-size:3.2rem}.cd .t{font-size:2.1rem}.logo{font-size:1.15rem}}
+@media(prefers-reduced-motion:reduce){*,::after{animation:none!important}}
+</style>
+</head>
+<body data-sky="clear">
+<main class="wrap">
+
+<header class="card">
+  <div class="row">
+    <div class="logo" aria-label="Libya Sky">
+      <svg width="38" height="38" viewBox="0 0 40 40" aria-hidden="true"><circle cx="15" cy="15" r="7" fill="#fbbf24"/><g stroke="#fbbf24" stroke-width="2" stroke-linecap="round"><path d="M15 2v3M2 15h3M5.8 5.8l2.1 2.1M24.2 5.8l-2.1 2.1"/></g><path d="M12 33a7 7 0 010-14 9 9 0 0117 2 6 6 0 01-1 12z" fill="#fff" stroke="#22d3ee" stroke-width="1.5"/></svg>
+      <div>Libya Sky<small>سماء ليبيا</small></div>
+    </div>
+    <span class="sp"></span>
+    <button class="btn" id="refBtn" title="تحديث" aria-label="تحديث البيانات">🔄</button>
+    <button class="btn" id="themeBtn" title="تبديل السمة" aria-label="تبديل الوضع الليلي والنهاري">🌓</button>
+    <button class="btn" id="setBtn" title="الإعدادات" aria-label="إعدادات مواقيت الصلاة">⚙️</button>
+  </div>
+  <div class="row" style="margin-top:10px">
+    <div class="search">
+      <input id="search" type="search" placeholder="ابحث عن مدينة ليبية…" aria-label="بحث عن مدينة" autocomplete="off">
+      <div class="res" id="searchRes" hidden></div>
+    </div>
+    <select id="citySel" aria-label="اختيار المدينة"></select>
+    <button class="btn" id="favBtn" aria-pressed="false" title="إضافة للمفضلة" aria-label="إضافة أو إزالة من المفضلة">☆</button>
+    <button class="btn" id="geoBtn" title="أقرب مدينة لموقعي" aria-label="تحديد أقرب مدينة لموقعي">📍</button>
+  </div>
+  <div class="row" id="favs" style="margin-top:8px"></div>
+  <div id="settings" class="set card" hidden style="margin-top:10px">
+    <h2>إعدادات مواقيت الصلاة</h2>
+    <label>طريقة الحساب <select id="methodSel"></select></label>
+    <label>مدرسة حساب العصر <select id="schoolSel"></select></label>
+    <div id="offs" class="set"></div>
+    <small>التعديلات اليدوية (بالدقائق) صفر افتراضياً، وتُطبَّق فوراً على العرض فقط وتُحفظ على جهازك.</small>
+    <small>لم نتمكن من توثيق طريقة حساب رسمية معتمدة لليبيا. الطريقة الافتراضية هي «الهيئة المصرية العامة للمساحة» مع العصر القياسي (جمهور، ومنهم المالكية) لأنها الأكثر استخداماً في المصادر العامة لليبيا، وليست معتمدة رسمياً. يمكنك تغييرها، ويُفضَّل مقارنة النتائج بتقويم الأوقاف أو مسجدك.</small>
+  </div>
+</header>
+
+<div id="alert" class="alert" role="alert" hidden></div>
+
+<section class="card hero" aria-live="polite">
+  <div class="row">
+    <div><h2 id="cityName" style="font-size:1.6rem;margin:0">—</h2><div id="dateTxt">—</div></div>
+    <span class="sp"></span>
+    <div style="text-align:end"><div class="tm" id="clock" style="font-size:1.8rem;font-weight:800">--:--:--</div><small>بتوقيت ليبيا (Africa/Tripoli)</small></div>
+  </div>
+  <div id="loader" class="row" hidden><span class="spin"></span> جارٍ تحميل البيانات…</div>
+  <div id="wxErr" class="err" role="alert" hidden></div>
+  <div class="big">
+    <div class="ic" id="icon">—</div>
+    <div><div class="temp"><span class="ltr" id="temp">--</span></div><div id="cond" style="font-size:1.2rem">—</div><div id="feels">—</div></div>
+  </div>
+  <div class="tiles" id="tiles"></div>
+  <p id="summary" style="margin:0">—</p>
+</section>
+
+<div class="two">
+<section class="card prayer" aria-label="مواقيت الصلاة">
+  <h2>🕌 مواقيت الصلاة</h2>
+  <div id="prErr" class="err" role="alert" hidden></div>
+  <div class="cd">
+    <div id="nextName" style="font-size:1.2rem;font-weight:600">الصلاة القادمة: —</div>
+    <div id="nextTime" class="tm">موعد الصلاة: —</div>
+    <div>المتبقي: <div class="t ltr" id="countdown">--:--:--</div></div>
+    <div id="relTxt">—</div>
+  </div>
+  <div class="row" style="justify-content:center;gap:16px"><span id="hijri">—</span><span id="greg">—</span></div>
+  <div class="pcards" id="pcards"></div>
+  <small id="methodName" style="display:block;margin-top:8px">—</small>
+</section>
+
+<section class="card">
+  <h2>📋 نظرة عامة على اليوم</h2>
+  <p id="overview" style="margin:0 0 10px">—</p>
+  <h2>💡 نصائح اليوم</h2>
+  <ul id="advice"><li>—</li></ul>
+</section>
+</div>
+
+<section class="card"><h2>⏱️ الساعات الـ24 القادمة</h2><div class="scroll" id="hourly"></div></section>
+<section class="card"><h2>📅 توقعات 7 أيام</h2><div id="daily"></div></section>
+<section class="card"><h2>🗺️ مقارنة المدن (نظرة إقليمية)</h2><div id="cmpErr" class="err" hidden></div><div class="cmp" id="compare"></div></section>
+
+<footer class="card" style="text-align:center;font-size:.85rem">
+  <div id="upd">لم يتم التحديث بعد</div>
+  <div>البيانات: Open-Meteo (الطقس) · AlAdhan (المواقيت)</div>
+  <div>مواقيت الصلاة محسوبة فلكياً حسب إحداثيات المدينة وطريقة الحساب المختارة، وهي غير معتمدة رسمياً من جهة دينية ليبية. قد تختلف بضع دقائق عن تقويم مسجدك.</div>
+</footer>
+</main>
+
+<script>
+'use strict';
+/* ===HELPERS-START===
+   Pure time helpers. All internal values are epoch milliseconds (absolute instants).
+   12-hour text is produced ONLY at display time by fmtTime()/fmtParts(). */
+const TZ = 'Africa/Tripoli';
+const PR = [['Fajr','الفجر'],['Dhuhr','الظهر'],['Asr','العصر'],['Maghrib','المغرب'],['Isha','العشاء']];
+const pad = n => String(n).padStart(2,'0');
+
+/* Formatters are created once (cheap per-second reuse). hourCycle h23 avoids the "24:00" quirk. */
+const PARTS_FMT = new Intl.DateTimeFormat('en-GB',{timeZone:TZ,hourCycle:'h23',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'});
+/* Calendar/clock fields of an instant as seen in Libya, regardless of the device's own time zone */
+function partsOf(ms){
+  const o={}; PARTS_FMT.formatToParts(new Date(ms)).forEach(p=>o[p.type]=p.value);
+  return {y:+o.year,mo:+o.month,d:+o.day,h:(+o.hour)%24,mi:+o.minute,s:+o.second};
+}
+const nowParts = ms => partsOf(ms==null?Date.now():ms);
+/* Offset (ms) of Libya from UTC at a given instant, derived from Intl so it stays correct even if the rules change */
+function tzOffset(ms){const p=partsOf(ms);return Date.UTC(p.y,p.mo-1,p.d,p.h,p.mi,p.s)-Math.floor(ms/1000)*1000;}
+/* Libya wall-clock fields -> absolute epoch ms (two passes handle offset changes near the guess) */
+function zonedToEpoch(y,mo,d,h,mi,s){
+  const guess=Date.UTC(y,mo-1,d,h,mi,s||0);
+  let e=guess-tzOffset(guess); e=guess-tzOffset(e); return e;
+}
+/* "2026-10-28T14:00" (Open-Meteo, already in Africa/Tripoli) -> epoch ms, or null */
+function isoLocalToEpoch(s){
+  const m=/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(String(s||''));
+  return m?zonedToEpoch(+m[1],+m[2],+m[3],+m[4],+m[5],0):null;
+}
+const T12  = new Intl.DateTimeFormat('en-US',{timeZone:TZ,hour:'numeric',minute:'2-digit',hour12:true});
+const T12S = new Intl.DateTimeFormat('en-US',{timeZone:TZ,hour:'numeric',minute:'2-digit',second:'2-digit',hour12:true});
+/* 12-hour display: {t:'6:30', p:'صباحًا'}. 12:xx PM -> ظهرًا, other PM hours -> مساءً, 12:xx AM (midnight) -> صباحًا */
+function fmtParts(ms,sec){
+  const o={}; (sec?T12S:T12).formatToParts(new Date(ms)).forEach(p=>o[p.type]=p.value);
+  const pm=partsOf(ms).h>=12;
+  return {t:o.hour+':'+o.minute+(sec?':'+o.second:''), p:pm?(+o.hour===12?'ظهرًا':'مساءً'):'صباحًا'};
+}
+function fmtTime(ms,sec){const f=fmtParts(ms,sec);return f.t+' '+f.p;}
+const key = n => n.y+'-'+pad(n.mo)+'-'+pad(n.d);
+function tomorrow(n){const t=new Date(Date.UTC(n.y,n.mo-1,n.d+1));return {y:t.getUTCFullYear(),mo:t.getUTCMonth()+1,d:t.getUTCDate()};}
+const off = k => (S.off[k]||0);   /* user adjustment in minutes (default 0) */
+/* Next prayer from real instants. p.today / p.tmr map prayer -> epoch ms.
+   Returns null if p belongs to another date, {na:true} if after Isha and tomorrow's Fajr is missing. */
+function pickNext(p,t){
+  if(!p||p.dateKey!==key(nowParts(t)))return null;
+  const list=PR.map(([k])=>p.today[k]+off(k)*60000);
+  const i=list.findIndex(x=>x>t);
+  if(i>-1)return {i,at:list[i],left:Math.max(0,Math.ceil((list[i]-t)/1000)),prev:i-1,tmr:false};
+  if(!p.tmr)return {na:true};
+  const at=p.tmr.Fajr+off('Fajr')*60000;
+  return {i:0,at,left:Math.max(0,Math.ceil((at-t)/1000)),prev:4,tmr:true};
+}
+/* ===HELPERS-END=== */
+
+/* ========= Configuration ========= */
+/* Coordinates: decimal degrees (WGS84) of each city centre, as listed in common gazetteers (GeoNames/Wikipedia).
+   Every city carries its own IANA time zone (Libya: Africa/Tripoli, UTC+2, no DST). */
+const C = (id,ar,en,lat,lon) => ({id,ar,en,lat,lon,tz:TZ});
+const CITIES = [
+ C('tripoli','طرابلس','Tripoli',32.8872,13.1913), C('benghazi','بنغازي','Benghazi',32.1167,20.0667),
+ C('misrata','مصراتة','Misrata',32.3754,15.0925), C('sabha','سبها','Sabha',27.0377,14.4283),
+ C('sirte','سرت','Sirte',31.2089,16.5887), C('zawiya','الزاوية','Zawiya',32.7522,12.7278),
+ C('zliten','زليتن','Zliten',32.4674,14.5687), C('bayda','البيضاء','Al Bayda',32.7627,21.7551),
+ C('tobruk','طبرق','Tobruk',32.0836,23.9764), C('derna','درنة','Derna',32.7648,22.6392),
+ C('ajdabiya','أجدابيا','Ajdabiya',30.7554,20.2263), C('khoms','الخمس','Khoms',32.6486,14.2619),
+ C('gharyan','غريان','Gharyan',32.1722,13.0203), C('baniwalid','بني وليد','Bani Walid',31.7544,13.9894),
+ C('tarhuna','ترهونة','Tarhuna',32.4350,13.6320), C('nalut','نالوت','Nalut',31.8740,10.9815),
+ C('ghat','غات','Ghat',24.9647,10.1728), C('murzuq','مرزق','Murzuq',25.9155,13.9184),
+ C('kufra','الكفرة','Kufra',24.1990,23.2900), C('jalu','جالو','Jalu',29.0331,21.5482)
+];
+const DEFAULT_METHOD = 5;   /* Egyptian General Authority of Survey: default, NOT officially verified for Libya */
+const SCHOOLS = {0:'قياسي: الجمهور (الشافعي/المالكي/الحنبلي) - الافتراضي',1:'الحنفي'};
+/* Arabic labels for AlAdhan method ids; the list shown is loaded from the API (/v1/methods), this is also the offline fallback */
+const METHOD_AR = {0:'الجعفري (ليفا - قم)',1:'جامعة العلوم الإسلامية - كراتشي',2:'أمريكا الشمالية (ISNA)',3:'رابطة العالم الإسلامي',4:'أم القرى (مكة المكرمة)',5:'الهيئة المصرية العامة للمساحة (الافتراضي)',
+ 7:'معهد الجيوفيزياء - جامعة طهران',8:'منطقة الخليج',9:'الكويت',10:'قطر',11:'سنغافورة',12:'اتحاد المنظمات الإسلامية بفرنسا',13:'ديانت - تركيا',14:'الإدارة الروحية لمسلمي روسيا',
+ 15:'لجنة رؤية الهلال (Moonsighting)',16:'دبي',17:'ماليزيا (JAKIM)',18:'تونس',19:'الجزائر',20:'إندونيسيا (KEMENAG)',21:'المغرب',22:'لشبونة - البرتغال',23:'الأردن'};
+/* High-latitude rules are not needed: every Libyan city lies between 24° and 33° N, where Fajr/Isha always exist */
+/* WMO weather codes -> [icon, Arabic text] */
+const WX = {0:['☀️','صافٍ / مشمس'],1:['🌤️','غالباً صافٍ'],2:['⛅','غائم جزئياً'],3:['☁️','غائم'],45:['🌫️','ضباب'],48:['🌫️','ضباب صقيعي'],
+ 51:['🌦️','رذاذ خفيف'],53:['🌦️','رذاذ متوسط'],55:['🌦️','رذاذ كثيف'],56:['🌧️','رذاذ متجمد خفيف'],57:['🌧️','رذاذ متجمد كثيف'],
+ 61:['🌧️','مطر خفيف'],63:['🌧️','مطر متوسط'],65:['🌧️','مطر غزير'],66:['🌧️','مطر متجمد خفيف'],67:['🌧️','مطر متجمد غزير'],
+ 71:['🌨️','ثلج خفيف'],73:['🌨️','ثلج متوسط'],75:['❄️','ثلج كثيف'],77:['❄️','حبات ثلج'],
+ 80:['🌦️','زخات مطر خفيفة'],81:['🌧️','زخات مطر متوسطة'],82:['⛈️','زخات مطر عنيفة'],85:['🌨️','زخات ثلج خفيفة'],86:['❄️','زخات ثلج كثيفة'],
+ 95:['⛈️','عاصفة رعدية'],96:['⛈️','عاصفة رعدية مع برد خفيف'],99:['⛈️','عاصفة رعدية مع برد كثيف']};
+const wx = (c,day=1) => { const w = WX[c] || ['🌡️','غير معروف']; return (day===0 && (c===0||c===1)) ? ['🌙',w[1]] : w; };
+const RAIN=[51,53,55,56,57,61,63,65,66,67,80,81,82], SNOW=[71,73,75,77,85,86], STORM=[95,96,99];
+
+/* ========= Helpers ========= */
+const $ = s => document.querySelector(s);
+const ls = {get(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch{return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
+/* Safe DOM builder: only textContent is used, never innerHTML */
+function h(tag,cls,txt,kids){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;(kids||[]).forEach(k=>e.appendChild(k));return e;}
+const num = (v,u='',d=0) => (v==null||isNaN(v)) ? '—' : (+v).toFixed(d)+u;
+const fmtISO = (s,sec) => { const e=isoLocalToEpoch(s); return e==null?'—':fmtTime(e,sec); };
+/* Puts a 12-hour time into an element: number + small AM/PM word */
+function setTime(el,ms){const f=fmtParts(ms,false);el.replaceChildren(document.createTextNode(f.t+' '),h('span','per',f.p));}
+let dateFmt; try{dateFmt=new Intl.DateTimeFormat('ar-LY-u-nu-latn',{timeZone:TZ,weekday:'long',day:'numeric',month:'long',year:'numeric'})}catch{dateFmt=new Intl.DateTimeFormat('ar',{timeZone:TZ,dateStyle:'full'})}
+const compass = d => d==null ? '—' : ['شمال','شمال شرق','شرق','جنوب شرق','جنوب','جنوب غرب','غرب','شمال غرب'][Math.round(d/45)%8];
+
+/* ========= State ========= */
+const S = {city:null,weather:null,wAt:null,prayer:null,pAt:null,cmp:null,
+  favs:ls.get('ls_favs',[]),method:ls.get('ls_method',DEFAULT_METHOD),school:ls.get('ls_school',0),
+  off:Object.assign({Fajr:0,Dhuhr:0,Asr:0,Maghrib:0,Isha:0},ls.get('ls_off',{}))};
+if(S.school!==0&&S.school!==1)S.school=0;
+ls.get('ls_custom',[]).forEach(c=>{if(c&&c.id&&!CITIES.some(x=>x.id===c.id))CITIES.push(Object.assign({tz:TZ},c))});
+let ctlW=null,ctlP=null,ridW=0,ridP=0,ridC=0,pend=0,lastP=0,pcards=[],cardSig=null;
+const CACHE = new Map();   /* prayer responses: city coords|date|method|school -> validated {raw,hijri} */
+
+/* ========= Network ========= */
+/* fetch with 15 s timeout; a caller-supplied signal cancels superseded requests */
+async function getJSON(url,sig){
+  const tc=new AbortController(),to=setTimeout(()=>tc.abort(),15000),onAbort=()=>tc.abort();
+  if(sig){if(sig.aborted)tc.abort();else sig.addEventListener('abort',onAbort,{once:true});}
+  try{
+    const r=await fetch(url,{signal:tc.signal});
+    if(!r.ok){const e=new Error('HTTP '+r.status);e.status=r.status;throw e;}
+    return await r.json();
+  }catch(e){
+    if(e.name==='AbortError'&&!(sig&&sig.aborted)){const t=new Error('timeout');t.timeout=true;throw t;}
+    throw e;
+  }finally{clearTimeout(to);if(sig)sig.removeEventListener('abort',onAbort);}
+}
+function errMsg(e){
+  if(!navigator.onLine) return 'لا يوجد اتصال بالإنترنت. لا يمكن عرض بيانات حية الآن.';
+  if(e&&e.timeout) return 'انتهت مهلة الاتصال بالخدمة. حاول مجدداً.';
+  if(e&&e.status===429) return 'تم تجاوز حد الطلبات للخدمة. يرجى المحاولة بعد قليل.';
+  if(e&&e.status) return 'الخدمة غير متاحة حالياً (رمز '+e.status+'). حاول لاحقاً.';
+  return e&&e.invalid ? 'استجابة الخدمة غير مكتملة أو غير صالحة.' : 'تعذر الاتصال بالخدمة. تحقق من الإنترنت وحاول مجدداً.';
+}
+const bad = () => {const e=new Error('bad');e.invalid=true;return e;};
+async function getWeather(c,sig){
+  const u='https://api.open-meteo.com/v1/forecast?latitude='+c.lat+'&longitude='+c.lon+
+   '&current=temperature_2m,apparent_temperature,relative_humidity_2m,is_day,weather_code,cloud_cover,wind_speed_10m,wind_direction_10m'+
+   '&hourly=temperature_2m,weather_code,precipitation_probability'+
+   '&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max,precipitation_probability_max'+
+   '&timezone='+encodeURIComponent(c.tz||TZ)+'&wind_speed_unit=kmh&forecast_days=7';
+  const j=await getJSON(u,sig);
+  if(!j||!j.current||!j.hourly||!j.daily||!Array.isArray(j.hourly.time)||!Array.isArray(j.daily.time)||j.current.temperature_2m==null||!j.daily.time.length)throw bad();
+  return j;
+}
+function parseT(v){const m=String(v||'').match(/(\d{1,2}):(\d{2})/);return m?(+m[1])*60+(+m[2]):null;}   /* "04:13 (EET)" -> minutes from midnight */
+/* One day of prayer times for the city's own coordinates. Validated before use and cached per city/date/method/school. */
+async function fetchDay(c,n,method,school,sig,force){
+  const ck=c.lat+','+c.lon+'|'+key(n)+'|'+method+'|'+school;
+  if(!force&&CACHE.has(ck))return CACHE.get(ck);
+  const u='https://api.aladhan.com/v1/timings/'+pad(n.d)+'-'+pad(n.mo)+'-'+n.y+
+    '?latitude='+c.lat+'&longitude='+c.lon+'&method='+method+'&school='+school+'&timezonestring='+encodeURIComponent(c.tz||TZ);
+  const j=await getJSON(u,sig);
+  if(!j||+j.code!==200||!j.data||!j.data.timings)throw bad();
+  const mz=j.data.meta&&j.data.meta.timezone; if(mz&&mz!==(c.tz||TZ))throw bad();   /* refuse times computed for another zone */
+  const raw={};let prev=-1;
+  for(const [k] of PR){const m=parseT(j.data.timings[k]);if(m==null||m<=prev)throw bad();raw[k]=m;prev=m;}   /* five valid, ascending times or nothing */
+  let hijri=null;const hj=j.data.date&&j.data.date.hijri;
+  if(hj&&hj.month&&hj.day&&hj.year)hijri=hj.day+' '+(hj.month.ar||hj.month.en)+' '+hj.year+' هـ';
+  const val={raw,hijri};
+  CACHE.set(ck,val); if(CACHE.size>80)CACHE.delete(CACHE.keys().next().value);
+  return val;
+}
+/* minutes-from-midnight on a Libyan calendar date -> absolute instants */
+function toEpochs(raw,n){const o={};for(const [k] of PR)o[k]=zonedToEpoch(n.y,n.mo,n.d,Math.floor(raw[k]/60),raw[k]%60,0);return o;}
+async function getPrayer(c,method,school,sig,force){
+  const n=nowParts(),t=tomorrow(n);
+  /* Tomorrow's Fajr is needed after Isha; if only that request fails we keep today's data and never invent a time */
+  const [a,b]=await Promise.all([fetchDay(c,n,method,school,sig,force),
+    fetchDay(c,t,method,school,sig,force).catch(e=>{if(e.name==='AbortError')throw e;return null;})]);
+  return {cityId:c.id,method,school,dateKey:key(n),hijri:a.hijri,today:toEpochs(a.raw,n),tmr:b?toEpochs(b.raw,t):null};
+}
+
+/* ========= Loading (race-safe: a newer request cancels the older one) ========= */
+function busy(d){pend=Math.max(0,pend+d);$('#loader').hidden=pend===0;}
+function showErr(sel,msg){const e=$(sel);e.textContent=msg;e.hidden=false;}
+async function loadWeather(){
+  const id=++ridW; if(ctlW)ctlW.abort(); ctlW=new AbortController(); const sig=ctlW.signal,c=S.city; busy(1);
+  try{
+    const w=await getWeather(c,sig); if(id!==ridW)return;
+    S.weather=w;S.wAt=Date.now();$('#wxErr').hidden=true;renderWeather();updateOverview();
+  }catch(e){ if(e.name==='AbortError'||id!==ridW)return; showErr('#wxErr','الطقس: '+errMsg(e)); }
+  finally{busy(-1);}
+}
+async function loadPrayer(force){
+  const id=++ridP; if(ctlP)ctlP.abort(); ctlP=new AbortController(); const sig=ctlP.signal,c=S.city; busy(1);
+  lastP=Date.now();
+  try{
+    const p=await getPrayer(c,S.method,S.school,sig,force); if(id!==ridP)return;
+    S.prayer=p;S.pAt=Date.now();$('#prErr').hidden=true;renderPrayerCards();updateCountdown();updateOverview();
+  }catch(e){ if(e.name==='AbortError'||id!==ridP)return; showErr('#prErr','مواقيت الصلاة: '+errMsg(e)); }
+  finally{busy(-1);}
+}
+async function loadCompare(){
+  if(S.cmp&&Date.now()-S.cmp.at<600000){renderCompare();return;}
+  const id=++ridC;
+  try{
+    const u='https://api.open-meteo.com/v1/forecast?latitude='+CITIES.map(c=>c.lat).join(',')+'&longitude='+CITIES.map(c=>c.lon).join(',')+'&current=temperature_2m,weather_code,is_day&timezone='+encodeURIComponent(TZ);
+    let j=await getJSON(u); if(!Array.isArray(j))j=[j];
+    if(id!==ridC)return;
+    S.cmp={at:Date.now(),data:CITIES.map((c,i)=>({id:c.id,cur:j[i]&&j[i].current}))};
+    $('#cmpErr').hidden=true; renderCompare();
+  }catch(e){ if(id!==ridC)return; S.cmp=null; $('#compare').replaceChildren(); showErr('#cmpErr','المقارنة: '+errMsg(e)); }
+}
+function refreshAll(force){loadWeather();loadPrayer(!!force);loadCompare();}
+
+/* ========= Rendering ========= */
+function resetUI(){
+  ['#temp','#cond','#feels','#summary','#overview'].forEach(s=>$(s).textContent='—');
+  $('#icon').textContent='—'; ['#tiles','#hourly','#daily','#compare'].forEach(s=>$(s).replaceChildren());
+  $('#advice').replaceChildren(h('li',null,'—')); $('#alert').hidden=true;
+  $('#greg').textContent='—'; renderPrayerCards();
+}
+function skyOf(c){
+  if(c.is_day===0)return 'night'; const k=c.weather_code;
+  if(STORM.includes(k))return 'storm'; if(RAIN.includes(k))return 'rain'; if(SNOW.includes(k))return 'snow';
+  if(k===45||k===48)return 'fog'; return k<=1?'clear':'cloud';
+}
+function renderWeather(){
+  const w=S.weather; $('#cityName').textContent=S.city.ar+' · '+S.city.en;
+  if(!w)return;
+  const c=w.current,d=w.daily,[ic,tx]=wx(c.weather_code,c.is_day);
+  document.body.dataset.sky=skyOf(c);
+  $('#icon').textContent=ic; $('#temp').textContent=num(c.temperature_2m,'°'); $('#cond').textContent=tx;
+  $('#feels').textContent='الإحساس الفعلي: '+num(c.apparent_temperature,'°');
+  let hi=w.hourly.time.findIndex(t=>t>=String(c.time||'').slice(0,13)); if(hi<0)hi=0;
+  const pp=w.hourly.precipitation_probability?w.hourly.precipitation_probability[hi]:null;
+  const rain=pp!=null?pp:(d.precipitation_probability_max?d.precipitation_probability_max[0]:null);
+  /* [icon, label, value, css class] : times use the 12-hour formatter, numbers stay left-to-right */
+  const tiles=[['🌡️','الصغرى / العظمى',num(d.temperature_2m_min[0],'°')+' / '+num(d.temperature_2m_max[0],'°'),'ltr'],
+   ['💧','الرطوبة',num(c.relative_humidity_2m,'%'),'ltr'],['💨','الرياح',num(c.wind_speed_10m,' كم/س')+' · '+compass(c.wind_direction_10m),'tm'],
+   ['☔','احتمال الهطول',num(rain,'%'),'ltr'],['☁️','الغطاء السحابي',num(c.cloud_cover,'%'),'ltr'],
+   ['🌅','الشروق',d.sunrise?fmtISO(d.sunrise[0]):'—','tm'],['🌇','الغروب',d.sunset?fmtISO(d.sunset[0]):'—','tm'],
+   ['🔆','مؤشر الأشعة فوق البنفسجية',num(d.uv_index_max?d.uv_index_max[0]:null,'',1),'ltr']];
+  $('#tiles').replaceChildren(...tiles.map(t=>h('div','tile',null,[h('span',null,t[0]+' '+t[1]),h('b',null,null,[h('span',t[3],t[2])])])));
+  /* hourly: next 24 hours from the current hour, labels in 12-hour format */
+  $('#hourly').replaceChildren(...w.hourly.time.slice(hi,hi+24).map((t,i)=>{const k=hi+i,hh=+t.slice(11,13);
+    const p=w.hourly.precipitation_probability?w.hourly.precipitation_probability[k]:null;
+    return h('div','hr',null,[h('div','tm',fmtISO(t)),h('div','e',wx(w.hourly.weather_code[k],(hh>=6&&hh<18)?1:0)[0]),h('b','ltr',num(w.hourly.temperature_2m[k],'°')),h('div','ltr',p!=null?'☔'+p+'%':'')]);}));
+  /* daily: forecast plus sunrise/sunset in 12-hour format */
+  const wd=new Intl.DateTimeFormat('ar',{weekday:'long',timeZone:'UTC'});
+  $('#daily').replaceChildren(...d.time.map((t,i)=>h('div','day',null,[
+    h('div',null,null,[h('b',null,i===0?'اليوم':wd.format(new Date(t+'T12:00:00Z'))),
+      h('small','tm','🌅 '+(d.sunrise?fmtISO(d.sunrise[i]):'—')+' · 🌇 '+(d.sunset?fmtISO(d.sunset[i]):'—'))]),
+    h('span',null,wx(d.weather_code[i])[0]),
+    h('span','ltr','⬇ '+num(d.temperature_2m_min[i],'°')),h('span','ltr','⬆ '+num(d.temperature_2m_max[i],'°'))])));
+  /* summary from real data */
+  const rp=d.precipitation_probability_max?d.precipitation_probability_max[0]:null;
+  $('#summary').textContent='الطقس في '+S.city.ar+' '+tx+'، وتتراوح درجات الحرارة اليوم بين '+num(d.temperature_2m_min[0],'°')+' و'+num(d.temperature_2m_max[0],'°')+(rp!=null?'، واحتمال الأمطار '+rp+'%':'')+'.';
+  renderAdvice();
+}
+function renderAdvice(){
+  const w=S.weather,c=w.current,d=w.daily,al=[],tips=[];
+  const t=c.temperature_2m,mx=d.temperature_2m_max[0],wind=c.wind_speed_10m,rp=d.precipitation_probability_max?d.precipitation_probability_max[0]:null,uv=d.uv_index_max?d.uv_index_max[0]:null,k=c.weather_code;
+  if(mx!=null&&mx>=42)al.push('🔥 تحذير: حرارة شديدة اليوم ('+num(mx,'°')+'). تجنّب التعرض للشمس وقت الظهيرة.');
+  else if(mx!=null&&mx>=35)tips.push('الجو حار اليوم، أكثر من شرب الماء وتجنّب الذروة وقت الظهيرة.');
+  if(wind!=null&&wind>=50)al.push('💨 تحذير: رياح قوية ('+num(wind,' كم/س')+'). احذر من الأتربة والأجسام المتطايرة.');
+  else if(wind!=null&&wind>=30)tips.push('الرياح نشطة اليوم، قد تتأثر الرؤية بالأتربة في المناطق المفتوحة.');
+  if(STORM.includes(k))al.push('⛈️ تحذير: عواصف رعدية حالياً. ابقَ في مكان آمن.');
+  if((rp!=null&&rp>=50)||RAIN.includes(k))tips.push('☔ احتمال مطر مرتفع، يُنصح بحمل مظلة وقيادة السيارة بحذر.');
+  if(uv!=null&&uv>=8)tips.push('الأشعة فوق البنفسجية مرتفعة جداً، استخدم واقي الشمس ونظارة شمسية.');
+  if(k===45||k===48)tips.push('ضباب: الرؤية محدودة، قُد ببطء وأشعل الأضواء.');
+  if(t!=null&&t<=8)tips.push('الجو بارد، ارتدِ ملابس ثقيلة.');
+  if(c.relative_humidity_2m!=null&&c.relative_humidity_2m>=80)tips.push('الرطوبة عالية، قد تشعر بالحرارة أكثر من المعتاد.');
+  if(!tips.length&&!al.length)tips.push('الأجواء معتدلة اليوم، يوم مناسب للأنشطة الخارجية. 😊');
+  const a=$('#alert'); if(al.length){a.textContent=al.join('  ');a.hidden=false;}else a.hidden=true;
+  $('#advice').replaceChildren(...(tips.length?tips:['لا توجد نصائح إضافية.']).map(x=>h('li',null,x)));
+}
+
+function methodLine(){
+  return 'طريقة الحساب: '+(METHOD_AR[S.method]||('رقم '+S.method))+' · العصر: '+(S.school===1?'الحنفي':'القياسي (الجمهور)');
+}
+/* Builds the five cards. Times come from real instants (today's schedule) formatted to 12 hours for display only. */
+function renderPrayerCards(){
+  const p=S.prayer; $('#methodName').textContent=methodLine(); cardSig=null;
+  pcards=PR.map(([k,n])=>{const tm=h('b','tm','--:--'),tag=h('small',null,''),c=h('div','pc',null,[h('div',null,n),tm,tag]);c._tm=tm;c._tag=tag;c._k=k;
+    if(p)setTime(tm,p.today[k]+off(k)*60000); return c;});
+  $('#pcards').replaceChildren(...pcards);
+  $('#hijri').textContent=p?(p.hijri?'📆 '+p.hijri:'التاريخ الهجري غير متاح'):'—';
+}
+/* Highlights the next prayer; after Isha the Fajr card switches to tomorrow's time and is tagged "غدًا" */
+function paintCards(nx){
+  const sig=nx&&!nx.na?nx.i+(nx.tmr?'t':''):'-'; if(sig===cardSig)return; cardSig=sig;
+  pcards.forEach((c,i)=>c.classList.toggle('next',!!nx&&!nx.na&&i===nx.i));
+  const p=S.prayer,f=pcards[0]; if(!p||!f)return;
+  const tmr=!!(nx&&nx.tmr&&p.tmr);
+  setTime(f._tm,(tmr?p.tmr.Fajr:p.today.Fajr)+off('Fajr')*60000); f._tag.textContent=tmr?'غدًا':'';
+}
+/* Runs every second from the local clock only (no API calls) */
+function updateCountdown(){
+  const nx=pickNext(S.prayer,Date.now());
+  const set=(name,time,cd,rel)=>{$('#nextName').textContent=name;$('#nextTime').textContent=time;$('#countdown').textContent=cd;$('#relTxt').textContent=rel;};
+  if(!S.prayer){set('الصلاة القادمة: —','موعد الصلاة: —','--:--:--','المواقيت غير متاحة');paintCards(null);return null;}
+  if(!nx){set('الصلاة القادمة: —','موعد الصلاة: —','--:--:--','جارٍ تحديث مواقيت اليوم…');paintCards(null);return null;}
+  if(nx.na){set('الصلاة القادمة: الفجر (غدًا)','موعد الصلاة: —','--:--:--','تعذر جلب فجر الغد. اضغط تحديث.');paintCards(null);return nx;}
+  const l=nx.left;
+  set('الصلاة القادمة: '+PR[nx.i][1]+(nx.tmr?' (غدًا)':''),'موعد الصلاة: '+fmtTime(nx.at),
+    pad(Math.floor(l/3600))+':'+pad(Math.floor(l%3600/60))+':'+pad(l%60),
+    nx.prev>=0?'بعد صلاة '+PR[nx.prev][1]+' وقبل صلاة '+PR[nx.i][1]:'قبل صلاة الفجر');
+  paintCards(nx); return nx;
+}
+function updateOverview(){
+  const w=S.weather,nx=pickNext(S.prayer,Date.now()),parts=[];
+  if(w)parts.push('الآن في '+S.city.ar+': '+wx(w.current.weather_code,w.current.is_day)[1]+' بدرجة '+num(w.current.temperature_2m,'°')+'.');
+  if(nx&&!nx.na)parts.push('الصلاة القادمة: '+PR[nx.i][1]+' الساعة '+fmtTime(nx.at)+(nx.tmr?' (غدًا)':'')+'.');
+  $('#overview').textContent=parts.length?parts.join(' '):'—';
+}
+function renderCompare(){
+  if(!S.cmp)return;
+  $('#compare').replaceChildren(...S.cmp.data.map(r=>{const c=CITIES.find(x=>x.id===r.id);if(!c)return h('span');const cu=r.cur,t=cu?cu.temperature_2m:null;
+    const hue=t==null?200:Math.max(0,Math.min(210,210-(t-5)*5.5));
+    const b=h('button',r.id===S.city.id?'cur':'',null,[h('div',null,c.ar),h('div',null,(cu?wx(cu.weather_code,cu.is_day)[0]:'')+' '+num(t,'°'))]);
+    b.style.background='hsla('+hue+',70%,55%,.35)';b.type='button';b.addEventListener('click',()=>selectCity(r.id));return b;}));
+}
+
+/* ========= Clock & countdown tick ========= */
+function tick(){
+  const t=Date.now(),n=nowParts(t);
+  $('#clock').textContent=fmtTime(t,true);
+  $('#dateTxt').textContent=dateFmt.format(new Date(t)); $('#greg').textContent='🗓️ '+key(n);
+  const nx=updateCountdown();
+  /* Refetch only when needed (at most once a minute): the Libyan date changed, or after Isha tomorrow's Fajr is still missing */
+  if(S.prayer&&t-lastP>60000&&(S.prayer.dateKey!==key(n)||(nx&&nx.na)))loadPrayer(false);
+  if(S.wAt||S.pAt){const l=[];if(S.wAt)l.push('الطقس '+fmtTime(S.wAt));if(S.pAt)l.push('المواقيت '+fmtTime(S.pAt));$('#upd').textContent='آخر تحديث ناجح — '+l.join(' · ');}
+}
+
+/* ========= City, favorites, search ========= */
+function buildSelect(){const s=$('#citySel');s.replaceChildren(...CITIES.map(c=>{const o=h('option',null,c.ar+' - '+c.en);o.value=c.id;return o;}));s.value=S.city.id;}
+function selectCity(id){
+  const c=CITIES.find(x=>x.id===id); if(!c)return;
+  S.city=c;S.weather=null;S.prayer=null;S.wAt=null;S.pAt=null; ls.set('ls_city',id);
+  $('#citySel').value=id;$('#cityName').textContent=c.ar+' · '+c.en;$('#searchRes').hidden=true;$('#search').value='';
+  $('#wxErr').hidden=true;$('#prErr').hidden=true;
+  resetUI();renderFavs();renderCompare();updateCountdown();refreshAll(false);   /* weather AND prayer times reload together */
+}
+function renderFavs(){
+  const f=S.favs.indexOf(S.city.id)>-1; $('#favBtn').textContent=f?'★':'☆'; $('#favBtn').setAttribute('aria-pressed',f);
+  const box=$('#favs'); box.replaceChildren();
+  if(S.favs.length)box.appendChild(h('small',null,'⭐ المفضلة:'));
+  S.favs.forEach(id=>{const c=CITIES.find(x=>x.id===id);if(!c)return;const b=h('button','btn chip',c.ar);b.type='button';b.addEventListener('click',()=>selectCity(id));box.appendChild(b);});
+}
+function toggleFav(){const i=S.favs.indexOf(S.city.id);if(i>-1)S.favs.splice(i,1);else S.favs.push(S.city.id);ls.set('ls_favs',S.favs);renderFavs();}
+function showResults(list,msg){
+  const r=$('#searchRes');r.replaceChildren();
+  list.forEach(c=>{const b=h('button',null,c.ar+(c.en&&c.en!==c.ar?' - '+c.en:''));b.type='button';b.addEventListener('click',()=>{if(!CITIES.some(x=>x.id===c.id))addCity(c);selectCity(c.id);});r.appendChild(b);});
+  if(msg)r.appendChild(h('div',null,msg,[])).style.padding='10px 14px';
+  r.hidden=!list.length&&!msg;
+}
+function addCity(c){CITIES.push(c);const cu=ls.get('ls_custom',[]);cu.push(c);ls.set('ls_custom',cu);buildSelect();$('#citySel').value=S.city.id;}
+function localSearch(q){q=q.trim().toLowerCase();return q?CITIES.filter(c=>c.ar.includes(q)||c.en.toLowerCase().includes(q)).slice(0,6):[];}
+async function geoSearch(q){
+  showResults([],'جارٍ البحث…');
+  try{
+    const j=await getJSON('https://geocoding-api.open-meteo.com/v1/search?name='+encodeURIComponent(q)+'&count=10&language=ar&format=json');
+    const out=(j.results||[]).filter(r=>r.country_code==='LY'&&isFinite(r.latitude)&&isFinite(r.longitude)).slice(0,6).map(r=>C('g'+r.id,String(r.name),String(r.admin1||r.name),r.latitude,r.longitude));
+    showResults(out,out.length?'':'لا توجد نتائج في ليبيا.');
+  }catch(e){showResults([],errMsg(e));}
+}
+function nearestCity(){
+  if(!navigator.geolocation){alert('المتصفح لا يدعم تحديد الموقع.');return;}
+  navigator.geolocation.getCurrentPosition(p=>{ /* explicit user action only */
+    let best=null,bd=1e9;CITIES.forEach(c=>{const dx=(c.lat-p.coords.latitude),dy=(c.lon-p.coords.longitude)*Math.cos(c.lat*Math.PI/180),d=dx*dx+dy*dy;if(d<bd){bd=d;best=c;}});
+    if(best)selectCity(best.id);
+  },()=>alert('تعذر الحصول على الموقع. يمكنك اختيار المدينة يدوياً.'),{timeout:10000});
+}
+
+/* ========= Theme & settings ========= */
+function setTheme(t){document.documentElement.dataset.theme=t;ls.set('ls_theme',t);document.querySelector('meta[name=theme-color]').content=t==='dark'?'#0a1633':'#2b8cff';}
+/* Calculation settings changed: drop the current schedule (never show times for the old settings) and reload */
+function settingsChanged(){S.prayer=null;S.pAt=null;renderPrayerCards();updateCountdown();updateOverview();loadPrayer(false);}
+function fillMethods(items){
+  const m=$('#methodSel'); m.replaceChildren(...items.map(([id,l])=>{const o=h('option',null,l);o.value=id;return o;}));
+  if(!items.some(([id])=>+id===+S.method)){S.method=DEFAULT_METHOD;ls.set('ls_method',S.method);}
+  m.value=S.method;
+}
+/* The selectable methods come from AlAdhan itself (/v1/methods); the static list is only the offline fallback */
+async function loadMethods(){
+  try{
+    const j=await getJSON('https://api.aladhan.com/v1/methods'); const d=j&&j.data; if(!d||typeof d!=='object')return;
+    const items=Object.values(d).filter(x=>x&&Number.isInteger(x.id)&&x.id!==99&&x.name).map(x=>[x.id,METHOD_AR[x.id]||x.name]).sort((a,b)=>a[0]-b[0]);
+    if(items.length<3)return;
+    const prev=S.method; fillMethods(items); $('#methodName').textContent=methodLine();
+    if(S.method!==prev)settingsChanged();
+  }catch(e){/* keep fallback list */}
+}
+function buildSettings(){
+  fillMethods(Object.keys(METHOD_AR).map(k=>[+k,METHOD_AR[k]]));
+  $('#methodSel').addEventListener('change',e=>{S.method=+e.target.value;ls.set('ls_method',S.method);settingsChanged();});
+  const sc=$('#schoolSel'); sc.replaceChildren(...Object.keys(SCHOOLS).map(k=>{const o=h('option',null,SCHOOLS[k]);o.value=k;return o;})); sc.value=S.school;
+  sc.addEventListener('change',e=>{S.school=+e.target.value===1?1:0;ls.set('ls_school',S.school);settingsChanged();});
+  $('#offs').replaceChildren(...PR.map(([k,n])=>{const i=h('input');i.type='number';i.min=-30;i.max=30;i.step=1;i.value=S.off[k]||0;i.setAttribute('aria-label','تعديل '+n+' بالدقائق');
+    i.addEventListener('input',()=>{S.off[k]=Math.max(-30,Math.min(30,parseInt(i.value,10)||0));ls.set('ls_off',S.off);renderPrayerCards();updateCountdown();updateOverview();});
+    return h('label',null,null,[h('span',null,n+' (دقائق)'),i]);}));
+}
+
+/* ========= Init ========= */
+function init(){
+  setTheme(ls.get('ls_theme','dark'));
+  S.city=CITIES.find(c=>c.id===ls.get('ls_city','tripoli'))||CITIES[0];
+  buildSelect();buildSettings();resetUI();renderFavs();
+  $('#cityName').textContent=S.city.ar+' · '+S.city.en;
+  $('#citySel').addEventListener('change',e=>selectCity(e.target.value));
+  $('#favBtn').addEventListener('click',toggleFav);
+  $('#geoBtn').addEventListener('click',nearestCity);
+  $('#refBtn').addEventListener('click',()=>refreshAll(true));
+  $('#themeBtn').addEventListener('click',()=>setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark'));
+  $('#setBtn').addEventListener('click',()=>{const s=$('#settings');s.hidden=!s.hidden;});
+  $('#search').addEventListener('input',e=>{const q=e.target.value;if(!q.trim()){$('#searchRes').hidden=true;return;}showResults(localSearch(q),'');});
+  $('#search').addEventListener('keydown',e=>{if(e.key!=='Enter')return;const q=e.target.value.trim();if(!q)return;const l=localSearch(q);if(l.length===1)selectCity(l[0].id);else if(!l.length)geoSearch(q);});
+  document.addEventListener('click',e=>{if(!e.target.closest('.search'))$('#searchRes').hidden=true;});
+  window.addEventListener('online',()=>refreshAll(true));
+  window.addEventListener('offline',()=>showErr('#wxErr',errMsg()));
+  setInterval(tick,1000);                    /* clock + countdown: local only, no API calls */
+  setInterval(()=>refreshAll(false),15*60*1000);   /* periodic refresh; prayer data of the same day/method comes from the cache */
+  tick();refreshAll(false);loadMethods();
+}
+init();
+</script>
+</body>
+</html>
